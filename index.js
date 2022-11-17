@@ -7,22 +7,22 @@ class Room {
   }
 
   dateRange(startDate, endDate) {
-    let start = new Date(startDate);
-    let end = new Date(endDate);
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const datesRange = [];
 
-    let dateArray = [];
+    end.setDate(end.getDate() - 1);
 
-    while (start <= end) {
-      dateArray.push(new Date(start).toISOString().slice(0, 10));
+    while (end >= start) {
+      datesRange.push(new Date(start).toISOString().slice(0, 10));
       start.setDate(start.getDate() + 1);
     }
-
-    return dateArray;
+    return datesRange;
   }
 
   isOccupied(date) {
     for (const booking of this.bookings) {
-      if (date >= booking.checkIn && date < booking.checkOut) {
+      if (date >= booking.check_in && date < booking.check_out) {
         return true;
       }
     }
@@ -30,15 +30,39 @@ class Room {
   }
 
   occupancyPercentage(startDate, endDate) {
-    
+    const dates = this.dateRange(startDate, endDate);
+
+    let occupiedDays = 0;
+    let disOccupiedDays = 0;
+
+    for (const date of dates) {
+      this.isOccupied(date) ? occupiedDays++ : disOccupiedDays++;
+    }
+
+    let totalDays = occupiedDays + disOccupiedDays;
+    let occupancyPercentage = (occupiedDays * 100) / totalDays;
+
+    return Math.round(occupancyPercentage);
   }
 
   static totalOccupancyPercentage(rooms, startDate, endDate) {
-  
+    let totalOccupancy = 0;
+
+    for (const room of rooms) {
+      totalOccupancy +=
+        room.occupancyPercentage(startDate, endDate) / rooms.length;
+    }
+    return Math.round(totalOccupancy);
   }
 
   static availableRooms(rooms, startDate, endDate) {
-   
+    const availableRooms = [];
+    for (const room of rooms) {
+      room.occupancyPercentage(startDate, endDate) === 0
+      ? availableRooms.push (room)
+      : null;
+    }
+    return availableRooms;
   }
 }
 
@@ -53,15 +77,15 @@ class Booking {
   }
 
   getFee() {
-    const price = this.room.rate;
-    const discountRoom = (price * this.room.discount) / 100;
-    const discountBooking = (price * this.discount) / 100;
+    let totalDiscount = this.room.discount + this.discount;
 
-    if (discountBooking + discountRoom < price) {
-      return Math.round(price - (discountBooking + discountRoom));
-    } else {
-      return 0;
+    let finalPrice = this.room.rate;
+
+    if (totalDiscount < 100 && totalDiscount > 0) {
+     finalPrice = this.room.rate - (this.room.rate * (totalDiscount / 100));
     }
+
+    return Math.round(finalPrice);
   }
 }
 
