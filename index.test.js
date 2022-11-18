@@ -26,7 +26,7 @@ const {
   
     room.bookings = [booking1, booking2];
   
-    expect(room.isOccupied("2022-01-01")).toBeTruthy;
+    expect(room.isOccupied("2022-01-01")).toBe(true);
   });
   
   test("Room is occupied, true", () => {
@@ -41,7 +41,7 @@ const {
     );
     room.bookings = [booking];
   
-    expect(room.isOccupied("2022-02-14")).toBeTruthy;
+    expect(room.isOccupied("2022-02-14")).toBe(true);
   });
   
   test("Room is occupied, false", () => {
@@ -56,7 +56,7 @@ const {
     );
     room.bookings = [booking];
   
-    expect(room.isOccupied("2022-01-15")).toBeFalsy;
+    expect(room.isOccupied("2022-01-15")).toBe(false);
   });
   
   test("Room is occupied, false", () => {
@@ -71,7 +71,7 @@ const {
     );
     room.bookings = [booking];
   
-    expect(room.isOccupied("2022-01-20")).toBeFalsy;
+    expect(room.isOccupied("2022-01-20")).toBe(false);
   });
   
   // occupancyPercentage Tests
