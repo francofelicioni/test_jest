@@ -1,95 +1,79 @@
-class Room {
-  constructor(name, bookings, rate, discount) {
-    this.name = name; // String
-    this.bookings = bookings; // Array of booking objects
-    this.rate = rate; // Int price in cents
-    this.discount = discount; // Int percentage
-  }
-
-  dateRange(startDate, endDate) {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const datesRange = [];
-
-    end.setDate(end.getDate() - 1);
-
-    while (end >= start) {
-      datesRange.push(new Date(start).toISOString().slice(0, 10));
-      start.setDate(start.getDate() + 1);
+var Room = /** @class */ (function () {
+    function Room(room) {
+        this.name = room.name;
+        this.bookings = room.bookings;
+        this.rate = room.rate;
+        this.discount = room.discount;
     }
-    return datesRange;
-  }
-
-  isOccupied(date) {
-    for (const booking of this.bookings) {
-      if (date >= booking.check_in && date < booking.check_out) {
-        return true;
-      }
+    Room.prototype.dateRange = function (startDate, endDate) {
+        var start = new Date(startDate);
+        var end = new Date(endDate);
+        var datesRange = [];
+        end.setDate(end.getDate() - 1);
+        while (end >= start) {
+            datesRange.push(new Date(start).toISOString().slice(0, 10));
+            start.setDate(start.getDate() + 1);
+        }
+        return datesRange;
+    };
+    Room.prototype.isOccupied = function (date) {
+        for (var _i = 0, _a = this.bookings; _i < _a.length; _i++) {
+            var booking = _a[_i];
+            if (date >= booking.check_in && date < booking.check_out) {
+                return true;
+            }
+        }
+        return false;
+    };
+    Room.prototype.occupancyPercentage = function (startDate, endDate) {
+        var dates = this.dateRange(startDate, endDate);
+        var occupiedDays = 0;
+        var disOccupiedDays = 0;
+        for (var _i = 0, dates_1 = dates; _i < dates_1.length; _i++) {
+            var date = dates_1[_i];
+            this.isOccupied(date) ? occupiedDays++ : disOccupiedDays++;
+        }
+        var totalDays = occupiedDays + disOccupiedDays;
+        var occupancyPercentage = (occupiedDays * 100) / totalDays;
+        return Math.round(occupancyPercentage);
+    };
+    Room.totalOccupancyPercentage = function (rooms, startDate, endDate) {
+        var totalOccupancy = 0;
+        for (var _i = 0, rooms_1 = rooms; _i < rooms_1.length; _i++) {
+            var room = rooms_1[_i];
+            totalOccupancy +=
+                room.occupancyPercentage(startDate, endDate) / rooms.length;
+        }
+        return Math.round(totalOccupancy);
+    };
+    Room.availableRooms = function (rooms, startDate, endDate) {
+        var availableRooms = [];
+        for (var _i = 0, rooms_2 = rooms; _i < rooms_2.length; _i++) {
+            var room = rooms_2[_i];
+            room.occupancyPercentage(startDate, endDate) === 0
+                ? availableRooms.push(room)
+                : null;
+        }
+        return availableRooms;
+    };
+    return Room;
+}());
+var Booking = /** @class */ (function () {
+    function Booking(booking) {
+        this.name = booking.name;
+        this.email = booking.email;
+        this.check_in = booking.check_in;
+        this.check_out = booking.check_out;
+        this.discount = booking.discount;
+        this.room = booking.room;
     }
-    return false;
-  }
-
-  occupancyPercentage(startDate, endDate) {
-    const dates = this.dateRange(startDate, endDate);
-
-    let occupiedDays = 0;
-    let disOccupiedDays = 0;
-
-    for (const date of dates) {
-      this.isOccupied(date) ? occupiedDays++ : disOccupiedDays++;
-    }
-
-    let totalDays = occupiedDays + disOccupiedDays;
-    let occupancyPercentage = (occupiedDays * 100) / totalDays;
-
-    return Math.round(occupancyPercentage);
-  }
-
-  static totalOccupancyPercentage(rooms, startDate, endDate) {
-    let totalOccupancy = 0;
-
-    for (const room of rooms) {
-      totalOccupancy +=
-        room.occupancyPercentage(startDate, endDate) / rooms.length;
-    }
-    return Math.round(totalOccupancy);
-  }
-
-  static availableRooms(rooms, startDate, endDate) {
-    const availableRooms = [];
-    for (const room of rooms) {
-      room.occupancyPercentage(startDate, endDate) === 0
-      ? availableRooms.push (room)
-      : null;
-    }
-    return availableRooms;
-  }
-}
-
-class Booking {
-  constructor(name, email, check_in, check_out, discount, room) {
-    this.name = name; // String
-    this.email = email; // String
-    this.check_in = check_in; // Date
-    this.check_out = check_out; // Date
-    this.discount = discount; // Int percentage
-    this.room = room; //Room object
-  }
-
-  getFee() {
-    let totalDiscount = this.room.discount + this.discount;
-
-    let finalPrice = this.room.rate;
-
-    if (totalDiscount < 100 && totalDiscount > 0) {
-     finalPrice = this.room.rate - (this.room.rate * (totalDiscount / 100));
-    }
-
-    return Math.round(finalPrice);
-  }
-}
-
-module.exports = {
-  Room,
-  Booking,
-};
+    Booking.prototype.getFee = function () {
+        var totalDiscount = this.room.discount + this.discount;
+        var finalPrice = this.room.rate;
+        if (totalDiscount < 100 && totalDiscount > 0) {
+            finalPrice = this.room.rate - this.room.rate * (totalDiscount / 100);
+        }
+        return Math.round(finalPrice);
+    };
+    return Booking;
+}());

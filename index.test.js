@@ -16,7 +16,7 @@ const {
       room
     );
     const booking2 = new Booking(
-      "Josefa",
+      "Josefina",
       "josefa@gmail.com",
       "2022-02-16",
       "2022-02-30",
